@@ -14,9 +14,9 @@ class FinanceApp extends StatefulWidget {
 
 class _FinanceAppState extends State<FinanceApp> {
   final List<Expense> expenses = [
-    Expense("17.06.2021", "Grociries", 300),
-    Expense("18.06.2021", "Taxi", 500),
-    Expense("19.06.2021", "Drinks", 600)
+    Expense(DateTime(2021, 05, 19), "Groceries", 300),
+    Expense(DateTime(2021, 05, 18), "Taxi", 500),
+    Expense(DateTime(2021, 05, 17), "Drinks", 600)
   ];
 
   @override
@@ -42,6 +42,10 @@ class HomeWidget extends StatefulWidget {
 class HomeWidgetState extends State<HomeWidget> {
   List<Expense> expenses;
 
+  updatePage() {
+    setState(() {});
+  }
+
   HomeWidgetState({@required this.expenses});
 
   @override
@@ -55,7 +59,7 @@ class HomeWidgetState extends State<HomeWidget> {
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return NewExpenseScreen(expenses);
+            return NewExpenseScreen(expenses, updatePage);
           }));
         },
       ),
@@ -64,9 +68,9 @@ class HomeWidgetState extends State<HomeWidget> {
 
   Widget _expenseTile(Expense expense) {
     return ListTile(
-      leading: Text("${expense.amount} R"),
+      leading: Text(expense.amountStr()),
       title: Text(expense.category),
-      subtitle: Text(expense.date),
+      subtitle: Text(expense.dateStr()),
       trailing: Icon(Icons.more_vert),
     );
   }
@@ -75,10 +79,13 @@ class HomeWidgetState extends State<HomeWidget> {
 class NewExpenseScreen extends StatefulWidget {
   List<Expense> expenses;
 
-  NewExpenseScreen(this.expenses);
+  Function callback;
+
+  NewExpenseScreen(this.expenses, this.callback);
 
   @override
-  State<StatefulWidget> createState() => _NewExpenseScreenState(expenses);
+  State<StatefulWidget> createState() =>
+      _NewExpenseScreenState(expenses, callback);
 }
 
 class _NewExpenseScreenState extends State<NewExpenseScreen> {
@@ -87,11 +94,13 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
   String _selectedCategory;
   List<Expense> expenses;
   String _amount;
+  Function callback;
 
-  _NewExpenseScreenState(expenses) {
+  _NewExpenseScreenState(expenses, callback) {
     this.expenses = expenses;
     this._date = DateTime.now();
     this._selectedCategory = categories.first;
+    this.callback = callback;
   }
 
   @override
@@ -105,8 +114,10 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
         actions: [
           TextButton(
               onPressed: () {
-                Expense expense = Expense("${_date.toLocal()}".split(" ")[0],
-                    _selectedCategory, double.parse(_amount));
+                Expense expense =
+                    Expense(_date, _selectedCategory, double.parse(_amount));
+                expenses.add(expense);
+                callback();
                 Navigator.of(context).pop();
               },
               child: Text("Save"))
@@ -123,6 +134,7 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
             Container(
               height: 60,
               child: DateTimeFormField(
+                initialValue: _date,
                 onDateSelected: (value) {
                   setState(() {
                     _date = value;
