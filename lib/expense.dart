@@ -1,6 +1,8 @@
+import 'category.dart';
+
 class Expense {
   DateTime date;
-  String category;
+  Category category;
   double amount;
 
   Expense(this.date, this.category, this.amount);
