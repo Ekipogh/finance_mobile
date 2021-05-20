@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
 import 'expense.dart';
+import 'category.dart';
 
 void main() {
   runApp(FinanceApp());
@@ -14,9 +15,9 @@ class FinanceApp extends StatefulWidget {
 
 class _FinanceAppState extends State<FinanceApp> {
   final List<Expense> expenses = [
-    Expense(DateTime(2021, 05, 19), "Groceries", 300),
-    Expense(DateTime(2021, 05, 18), "Taxi", 500),
-    Expense(DateTime(2021, 05, 17), "Drinks", 600)
+    Expense(DateTime(2021, 05, 19), Category("Groceries"), 300),
+    Expense(DateTime(2021, 05, 18), Category("Taxi"), 500),
+    Expense(DateTime(2021, 05, 17), Category("Drinks"), 600)
   ];
 
   @override
@@ -69,7 +70,7 @@ class HomeWidgetState extends State<HomeWidget> {
   Widget _expenseTile(Expense expense) {
     return ListTile(
       leading: Text(expense.amountStr()),
-      title: Text(expense.category),
+      title: Text(expense.category.toString()),
       subtitle: Text(expense.dateStr()),
       trailing: Icon(Icons.more_vert),
     );
@@ -90,8 +91,12 @@ class NewExpenseScreen extends StatefulWidget {
 
 class _NewExpenseScreenState extends State<NewExpenseScreen> {
   DateTime _date;
-  final List<String> categories = ["Groceries", "Taxi", "Drinks"];
-  String _selectedCategory;
+  final List<Category> categories = [
+    Category("Groceries"),
+    Category("Taxi"),
+    Category("Drinks")
+  ];
+  Category _selectedCategory;
   List<Expense> expenses;
   String _amount;
   Function callback;
@@ -149,14 +154,15 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
               child: DropdownButtonFormField(
                 key: Key("expenseCategoryDropDown"),
                 value: _selectedCategory,
-                onChanged: (String newValue) {
+                onChanged: (Category newValue) {
                   setState(() {
                     _selectedCategory = newValue;
                   });
                 },
-                items: categories.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                      value: value, child: Text(value));
+                items: categories
+                    .map<DropdownMenuItem<Category>>((Category value) {
+                  return DropdownMenuItem<Category>(
+                      value: value, child: Text(value.toString()));
                 }).toList(),
               ),
             ),
