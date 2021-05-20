@@ -113,6 +113,7 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
         ),
         actions: [
           TextButton(
+              key: Key("saveExpenseButton"),
               onPressed: () {
                 Expense expense =
                     Expense(_date, _selectedCategory, double.parse(_amount));
@@ -146,6 +147,7 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
             Container(
               height: 60,
               child: DropdownButtonFormField(
+                key: Key("expenseCategoryDropDown"),
                 value: _selectedCategory,
                 onChanged: (String newValue) {
                   setState(() {
@@ -159,6 +161,7 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
               ),
             ),
             TextField(
+              key: Key("expenseCategoryAmountField"),
               decoration: InputDecoration(labelText: "Enter Expense amount"),
               keyboardType: TextInputType.number,
               onChanged: (value) {
