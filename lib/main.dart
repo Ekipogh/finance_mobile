@@ -14,7 +14,7 @@ class FinanceApp extends StatefulWidget {
 }
 
 class _FinanceAppState extends State<FinanceApp> {
-  final List<Expense> expenses = [
+  List<Expense> expenses = [
     Expense(DateTime(2021, 05, 19), Category("Groceries"), 300),
     Expense(DateTime(2021, 05, 18), Category("Taxi"), 500),
     Expense(DateTime(2021, 05, 17), Category("Drinks"), 600)
@@ -26,41 +26,40 @@ class _FinanceAppState extends State<FinanceApp> {
       theme: ThemeData(
         primaryColor: Colors.blue[300],
       ),
-      home: HomeWidget(expenses: expenses),
+      home: HomeWidget(expenses: expenses, callback: updatePage),
     );
+  }
+
+  updatePage(Expense expense) {
+    setState(() {
+      expenses.add(expense);
+    });
   }
 }
 
 class HomeWidget extends StatefulWidget {
-  List<Expense> expenses;
+  final List<Expense> expenses;
+  final Function callback;
 
-  HomeWidget({this.expenses});
+  HomeWidget({this.expenses, this.callback});
 
   @override
-  State<StatefulWidget> createState() => HomeWidgetState(expenses: expenses);
+  State<StatefulWidget> createState() => HomeWidgetState();
 }
 
 class HomeWidgetState extends State<HomeWidget> {
-  List<Expense> expenses;
-
-  updatePage() {
-    setState(() {});
-  }
-
-  HomeWidgetState({@required this.expenses});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: ListView(
-        children: [for (var expense in expenses) _expenseTile(expense)],
+        children: [for (var expense in widget.expenses) _expenseTile(expense)],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return NewExpenseScreen(expenses, updatePage);
+            return NewExpenseScreen(callback: widget.callback);
           }));
         },
       ),
@@ -78,15 +77,12 @@ class HomeWidgetState extends State<HomeWidget> {
 }
 
 class NewExpenseScreen extends StatefulWidget {
-  List<Expense> expenses;
+  final Function callback;
 
-  Function callback;
-
-  NewExpenseScreen(this.expenses, this.callback);
+  NewExpenseScreen({this.callback});
 
   @override
-  State<StatefulWidget> createState() =>
-      _NewExpenseScreenState(expenses, callback);
+  State<StatefulWidget> createState() => _NewExpenseScreenState();
 }
 
 class _NewExpenseScreenState extends State<NewExpenseScreen> {
@@ -97,15 +93,11 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
     Category("Drinks")
   ];
   Category _selectedCategory;
-  List<Expense> expenses;
   String _amount;
-  Function callback;
 
-  _NewExpenseScreenState(expenses, callback) {
-    this.expenses = expenses;
+  _NewExpenseScreenState() {
     this._date = DateTime.now();
     this._selectedCategory = categories.first;
-    this.callback = callback;
   }
 
   @override
@@ -122,8 +114,7 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
               onPressed: () {
                 Expense expense =
                     Expense(_date, _selectedCategory, double.parse(_amount));
-                expenses.add(expense);
-                callback();
+                widget.callback(expense);
                 Navigator.of(context).pop();
               },
               child: Text("Save"))
