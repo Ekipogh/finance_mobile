@@ -63,6 +63,30 @@ class HomeWidgetState extends State<HomeWidget> {
           }));
         },
       ),
+      drawer: Drawer(
+        key: ValueKey("Drawer"),
+        child: ListView(
+          children: [
+            DrawerHeader(child: Text("Profile")),
+            ListTile(
+              title: Text("Expenses"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text("Monthly Report"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return MonthlyReportScreen();
+                }));
+              },
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -170,6 +194,16 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class MonthlyReportScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(child: Text("Monthly Report")),
     );
   }
 }
