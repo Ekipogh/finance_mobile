@@ -26,7 +26,6 @@ void main() {
     expect(find.byKey(Key("expenseCategoryDropDown"), skipOffstage: false),
         findsOneWidget);
     expect(find.byType(TextField, skipOffstage: false), findsOneWidget);
-    await tester.tap(find.byType(IconButton, skipOffstage: false));
   });
   testWidgets('Test adding new Expense', (WidgetTester tester) async {
     await tester.pumpWidget(FinanceApp());
@@ -37,5 +36,12 @@ void main() {
     await tester.tap(find.byKey(Key("saveExpenseButton")));
     await tester.pumpAndSettle();
     expect(find.text("1234567.0 R", skipOffstage: false), findsOneWidget);
+  });
+  testWidgets("Test drawer", (WidgetTester tester) async {
+    await tester.pumpWidget(FinanceApp());
+    expect(find.text("Profile"), findsNothing);
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    expect(find.text("Profile"), findsOneWidget);
   });
 }
