@@ -1,10 +1,3 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,7 +22,7 @@ void main() {
   });
   testWidgets('Test adding new Expense', (WidgetTester tester) async {
     await tester.pumpWidget(FinanceApp());
-    await tester.tap(find.byType(FloatingActionButton));
+    await tester.tap(find.byKey(Key("expenseFloatingButton")));
     await tester.pumpAndSettle();
     await tester.enterText(
         find.byKey(Key("expenseCategoryAmountField")), "1234567");
@@ -43,5 +36,18 @@ void main() {
     await tester.tap(find.byTooltip('Open navigation menu'));
     await tester.pumpAndSettle();
     expect(find.text("Profile"), findsOneWidget);
+  });
+  testWidgets("Test new Category Screen", (WidgetTester tester) async {
+    await tester.pumpWidget(FinanceApp());
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key("CategoryDrawerTile")));
+    await tester.pumpAndSettle();
+    await tester
+        .tap(find.byKey(Key("categoryFloatingButton"), skipOffstage: false));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(Key("newCategoryNameField")), "foobar");
+    await tester.tap(find.byKey(Key("saveCategoryButton")));
+    expect(find.text("foobar"), findsOneWidget);
   });
 }

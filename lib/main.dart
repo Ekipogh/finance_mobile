@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
 import 'expense.dart';
@@ -14,11 +13,21 @@ class FinanceApp extends StatefulWidget {
 }
 
 class _FinanceAppState extends State<FinanceApp> {
-  List<Expense> expenses = [
-    Expense(DateTime(2021, 05, 19), Category("Groceries"), 300),
-    Expense(DateTime(2021, 05, 18), Category("Taxi"), 500),
-    Expense(DateTime(2021, 05, 17), Category("Drinks"), 600)
-  ];
+  List<Category> categories;
+  List<Expense> expenses;
+
+  _FinanceAppState() {
+    categories = [
+      Category("Groceries"),
+      Category("Taxi"),
+      Category("Drinks"),
+    ];
+    expenses = [
+      Expense(DateTime(2021, 05, 19), categories[0], 300),
+      Expense(DateTime(2021, 05, 18), categories[1], 500),
+      Expense(DateTime(2021, 05, 17), categories[2], 600)
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +35,12 @@ class _FinanceAppState extends State<FinanceApp> {
       theme: ThemeData(
         primaryColor: Colors.blue[300],
       ),
-      home: HomeWidget(expenses: expenses, callback: updatePage),
+      home: HomeWidget(
+          expenses: expenses, categories: categories, callback: updateExpenses),
     );
   }
 
-  updatePage(Expense expense) {
+  updateExpenses(Expense expense) {
     setState(() {
       expenses.add(expense);
     });
@@ -39,9 +49,10 @@ class _FinanceAppState extends State<FinanceApp> {
 
 class HomeWidget extends StatefulWidget {
   final List<Expense> expenses;
+  final List<Category> categories;
   final Function callback;
 
-  HomeWidget({this.expenses, this.callback});
+  HomeWidget({this.expenses, this.callback, this.categories});
 
   @override
   State<StatefulWidget> createState() => HomeWidgetState();
@@ -56,10 +67,12 @@ class HomeWidgetState extends State<HomeWidget> {
         children: [for (var expense in widget.expenses) _expenseTile(expense)],
       ),
       floatingActionButton: FloatingActionButton(
+        key: Key("expenseFloatingButton"),
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return NewExpenseScreen(callback: widget.callback);
+            return NewExpenseScreen(
+                callback: widget.callback, categories: widget.categories);
           }));
         },
       ),
@@ -72,6 +85,19 @@ class HomeWidgetState extends State<HomeWidget> {
               title: Text("Expenses"),
               onTap: () {
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              key: Key("CategoryDrawerTile"),
+              title: Text("Categories"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return CategoryScreen(
+                    categories: widget.categories,
+                  );
+                }));
               },
             ),
             ListTile(
@@ -100,10 +126,104 @@ class HomeWidgetState extends State<HomeWidget> {
   }
 }
 
-class NewExpenseScreen extends StatefulWidget {
+class CategoryScreen extends StatefulWidget {
+  final List<Category> categories;
+
+  CategoryScreen({this.categories});
+
+  @override
+  State<StatefulWidget> createState() => CategoryScreenState();
+}
+
+class CategoryScreenState extends State<CategoryScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: ListView(
+        children: [
+          for (var category in widget.categories) _categoryTile(category)
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        key: Key("categoryFloatingButton"),
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            return NewCategoryScreen(callback: updateCategories);
+          }));
+        },
+      ),
+    );
+  }
+
+  Widget _categoryTile(Category category) {
+    return ListTile(
+      title: Text(category.name),
+    );
+  }
+
+  void updateCategories(Category category) {
+    setState(() {
+      widget.categories.add(category);
+    });
+  }
+}
+
+class NewCategoryScreen extends StatefulWidget {
   final Function callback;
 
-  NewExpenseScreen({this.callback});
+  NewCategoryScreen({this.callback});
+
+  @override
+  State<StatefulWidget> createState() => NewCategoryScreenState();
+}
+
+class NewCategoryScreenState extends State<NewCategoryScreen> {
+  String _categoryName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        actions: [
+          TextButton(
+              key: Key("saveCategoryButton"),
+              onPressed: () {
+                Category category = Category(_categoryName);
+                widget.callback(category);
+                Navigator.of(context).pop();
+              },
+              child: Text("Save"))
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(8),
+        child: Column(
+          children: [
+            TextField(
+              key: Key("newCategoryNameField"),
+              decoration: InputDecoration(labelText: "Enter new category name"),
+              onChanged: (value) {
+                _categoryName = value;
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NewExpenseScreen extends StatefulWidget {
+  final Function callback;
+  final List<Category> categories;
+
+  NewExpenseScreen({this.callback, this.categories});
 
   @override
   State<StatefulWidget> createState() => _NewExpenseScreenState();
@@ -111,17 +231,14 @@ class NewExpenseScreen extends StatefulWidget {
 
 class _NewExpenseScreenState extends State<NewExpenseScreen> {
   DateTime _date;
-  final List<Category> categories = [
-    Category("Groceries"),
-    Category("Taxi"),
-    Category("Drinks")
-  ];
   Category _selectedCategory;
   String _amount;
 
-  _NewExpenseScreenState() {
+  @override
+  void initState() {
     this._date = DateTime.now();
-    this._selectedCategory = categories.first;
+    this._selectedCategory = widget.categories.first;
+    super.initState();
   }
 
   @override
@@ -174,7 +291,7 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
                     _selectedCategory = newValue;
                   });
                 },
-                items: categories
+                items: widget.categories
                     .map<DropdownMenuItem<Category>>((Category value) {
                   return DropdownMenuItem<Category>(
                       value: value, child: Text(value.toString()));
