@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
 import 'expense.dart';
@@ -101,12 +102,12 @@ class HomeWidgetState extends State<HomeWidget> {
               },
             ),
             ListTile(
-              title: Text("Monthly Report"),
+              title: Text("Statistics"),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
-                  return MonthlyReportScreen();
+                  return StatisticsScreen();
                 }));
               },
             )
@@ -315,12 +316,95 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
   }
 }
 
-class MonthlyReportScreen extends StatelessWidget {
+class StatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Center(child: Text("Monthly Report")),
+      body: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              tabs: [
+                Tab(
+                  icon: Icon(Icons.assessment),
+                  text: "Graphs",
+                ),
+                Tab(
+                  icon: Icon(Icons.today),
+                  text: "Monthly report",
+                )
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              Center(
+                child: Text("Graphs"),
+              ),
+              MonthlyReport(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MonthlyReport extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _MonthlyReportState();
+}
+
+class _MonthlyReportState extends State<MonthlyReport> {
+  DateTime _date;
+  String _formattedDate;
+
+  @override
+  void initState() {
+    _date = DateTime.now();
+    setFormattedDate();
+    super.initState();
+  }
+
+  void setFormattedDate() {
+    DateFormat formatter = DateFormat('MMMM yyyy');
+    _formattedDate = formatter.format(_date);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    _date = DateTime(_date.year, _date.month - 1);
+                    setFormattedDate();
+                  });
+                },
+                icon: Icon(Icons.arrow_left)),
+            SizedBox(
+                width: 160,
+                child: TextButton(
+                    onPressed: () {}, child: Text("$_formattedDate"))),
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    _date = DateTime(_date.year, _date.month + 1);
+                    setFormattedDate();
+                  });
+                },
+                icon: Icon(Icons.arrow_right)),
+          ],
+        )
+      ],
     );
   }
 }
