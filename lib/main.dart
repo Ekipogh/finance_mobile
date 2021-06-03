@@ -438,38 +438,41 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
             child: ElevatedButton(
               child: Text("Create the report"),
               onPressed: () async {
-                DateTime now = DateTime.now();
+                DateTime now_date = DateTime.now();
                 bool answer = true;
-                if (_date.isAfter(now) ||
-                    (_date.month == now.month && _date.year == now.year)) {}
-                await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Are you sure"),
-                        content: SingleChildScrollView(
-                          child: ListBody(
-                            children: [
-                              Text("Selected month is now or in the future."),
-                              Text("Are you sure you want to proceed?"),
-                            ],
+                bool isDateAfter = _date.isAfter(now_date) ||
+                    (_date.month == now_date.month &&
+                        _date.year == now_date.year);
+                if (isDateAfter) {
+                  await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Are you sure"),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: [
+                                Text("Selected month is now or in the future."),
+                                Text("Are you sure you want to proceed?"),
+                              ],
+                            ),
                           ),
-                        ),
-                        actions: [
-                          TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text("OK")),
-                          TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                answer = false;
-                              },
-                              child: Text("Cancel")),
-                        ],
-                      );
-                    });
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("OK")),
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  answer = false;
+                                },
+                                child: Text("Cancel")),
+                          ],
+                        );
+                      });
+                }
                 setState(() {
                   if (answer) {
                     MonthlyReport report = MonthlyReport(
