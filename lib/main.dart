@@ -1,7 +1,9 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
 import 'expense.dart';
 import 'category.dart';
+import 'monthlyReport.dart';
 
 void main() {
   runApp(FinanceApp());
@@ -101,12 +103,14 @@ class HomeWidgetState extends State<HomeWidget> {
               },
             ),
             ListTile(
-              title: Text("Monthly Report"),
+              key: Key("StatisticsButton"),
+              title: Text("Statistics"),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
-                  return MonthlyReportScreen();
+                  return StatisticsScreen(
+                      expenses: widget.expenses, categories: widget.categories);
                 }));
               },
             )
@@ -315,12 +319,265 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
   }
 }
 
-class MonthlyReportScreen extends StatelessWidget {
+class StatisticsScreen extends StatelessWidget {
+  final List<Expense> expenses;
+  final List<Category> categories;
+
+  StatisticsScreen({this.expenses, this.categories});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(child: Text("Monthly Report")),
+    return DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              tabs: [
+                Tab(
+                  icon: Icon(Icons.assessment),
+                  text: "Graphs",
+                ),
+                Tab(
+                  icon: Icon(Icons.today),
+                  text: "Monthly report",
+                )
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              Center(
+                child: Text("Graphs"),
+              ),
+              MonthlyReportScreen(expenses: expenses, categories: categories),
+            ],
+          ),
+        ));
+  }
+}
+
+class MonthlyReportScreen extends StatefulWidget {
+  final List<Expense> expenses;
+  final List<Category> categories;
+
+  MonthlyReportScreen({this.expenses, this.categories});
+
+  @override
+  State<StatefulWidget> createState() => _MonthlyReportScreenState();
+}
+
+class _MonthlyReportScreenState extends State<MonthlyReportScreen>
+    with AutomaticKeepAliveClientMixin<MonthlyReportScreen> {
+  DateTime _date;
+  String _formattedDate;
+  MonthlyReport _currentReport;
+  List<MonthlyReport> reports;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    _date = DateTime.now();
+    reports = [];
+    setFormattedDate();
+    super.initState();
+  }
+
+  void setFormattedDate() {
+    DateFormat formatter = DateFormat('MMMM yyyy');
+    _formattedDate = formatter.format(_date);
+  }
+
+  void setCurrentReport() {
+    for (MonthlyReport report in reports) {
+      if (report.date.month == _date.month && report.date.year == _date.year) {
+        _currentReport = report;
+        return;
+      }
+    }
+    _currentReport = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    _date = DateTime(_date.year, _date.month - 1);
+                    setFormattedDate();
+                    setCurrentReport();
+                  });
+                },
+                icon: Icon(Icons.arrow_left)),
+            SizedBox(
+                width: 160,
+                child: TextButton(
+                    onPressed: () {}, child: Text("$_formattedDate"))),
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    _date = DateTime(_date.year, _date.month + 1);
+                    setFormattedDate();
+                    setCurrentReport();
+                  });
+                },
+                icon: Icon(Icons.arrow_right)),
+          ],
+        ),
+        if (_currentReport == null)
+          Center(
+            child: ElevatedButton(
+              child: Text("Create the report"),
+              onPressed: () async {
+                DateTime now = DateTime.now();
+                bool answer = true;
+                if (_date.isAfter(now) ||
+                    (_date.month == now.month && _date.year == now.year)) {}
+                await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Are you sure"),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: [
+                              Text("Selected month is now or in the future."),
+                              Text("Are you sure you want to proceed?"),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("OK")),
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                answer = false;
+                              },
+                              child: Text("Cancel")),
+                        ],
+                      );
+                    });
+                setState(() {
+                  if (answer) {
+                    MonthlyReport report = MonthlyReport(
+                        _date, widget.expenses, widget.categories);
+                    reports.add(report);
+                    setCurrentReport();
+                    setFormattedDate();
+                  }
+                });
+              },
+            ),
+          )
+        else
+          MonthlyReportDetailsScreen(report: _currentReport)
+      ],
+    );
+  }
+}
+
+class MonthlyReportDetailsScreen extends StatelessWidget {
+  final MonthlyReport report;
+
+  MonthlyReportDetailsScreen({this.report});
+
+  @override
+  Widget build(BuildContext context) {
+    return Table(
+      children: [
+        TableRow(children: [
+          TableCell(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Category",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          TableCell(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Total",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          TableCell(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Previous Month",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          TableCell(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Year round monthly average",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ]),
+        for (var entry in report.data.entries)
+          TableRow(children: [
+            TableCell(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(entry.key.name),
+              ),
+            ),
+            TableCell(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(entry.value[0].toString()),
+              ),
+            ),
+            TableCell(
+              child: Container(
+                color: (entry.value[1] > 0)
+                    ? Colors.deepOrangeAccent
+                    : Colors.lightGreen,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    entry.value[1].toString(),
+                  ),
+                ),
+              ),
+            ),
+            TableCell(
+              child: Container(
+                color: (entry.value[2] > 0)
+                    ? Colors.deepOrangeAccent
+                    : Colors.lightGreen,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    entry.value[2].toString(),
+                  ),
+                ),
+              ),
+            )
+          ])
+      ],
     );
   }
 }

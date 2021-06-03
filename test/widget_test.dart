@@ -50,4 +50,12 @@ void main() {
     await tester.tap(find.byKey(Key("saveCategoryButton")));
     expect(find.text("foobar"), findsOneWidget);
   });
+  testWidgets("Test statistics", (WidgetTester tester) async {
+    await tester.pumpWidget(FinanceApp());
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key("StatisticsButton")));
+    await tester.pumpAndSettle();
+    expect(find.byType(Tab), findsNWidgets(2));
+  });
 }
