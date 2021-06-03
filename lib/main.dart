@@ -327,9 +327,7 @@ class StatisticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: DefaultTabController(
+    return DefaultTabController(
         length: 2,
         child: Scaffold(
           appBar: AppBar(
@@ -354,9 +352,7 @@ class StatisticsScreen extends StatelessWidget {
               MonthlyReportScreen(expenses: expenses, categories: categories),
             ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 
@@ -370,20 +366,21 @@ class MonthlyReportScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _MonthlyReportScreenState();
 }
 
-class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
+class _MonthlyReportScreenState extends State<MonthlyReportScreen>
+    with AutomaticKeepAliveClientMixin<MonthlyReportScreen> {
   DateTime _date;
   String _formattedDate;
   MonthlyReport _currentReport;
   List<MonthlyReport> reports;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     _date = DateTime.now();
-    reports = [
-      MonthlyReport(DateTime(2021, 04), widget.expenses, widget.categories)
-    ];
+    reports = [];
     setFormattedDate();
-    setCurrentReport();
     super.initState();
   }
 
@@ -404,6 +401,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       children: [
         Row(
@@ -528,6 +526,15 @@ class MonthlyReportDetailsScreen extends StatelessWidget {
               ),
             ),
           ),
+          TableCell(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Year round monthly average",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
         ]),
         for (var entry in report.data.entries)
           TableRow(children: [
@@ -552,6 +559,19 @@ class MonthlyReportDetailsScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     entry.value[1].toString(),
+                  ),
+                ),
+              ),
+            ),
+            TableCell(
+              child: Container(
+                color: (entry.value[2] > 0)
+                    ? Colors.deepOrangeAccent
+                    : Colors.lightGreen,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    entry.value[2].toString(),
                   ),
                 ),
               ),
