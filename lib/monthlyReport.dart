@@ -30,9 +30,9 @@ class MonthlyReport {
     }
     //Year average
     List<Expense> closed = [];
-    Map<Category, Map<int, double>> monthly_sums = {};
+    Map<Category, Map<int, double>> monthlySums = {};
     for (Category category in categories) {
-      monthly_sums[category] = {
+      monthlySums[category] = {
         1: 0,
         2: 0,
         3: 0,
@@ -48,28 +48,28 @@ class MonthlyReport {
       };
     }
     for (int month = 12; month > 0; month--) {
-      DateTime month_start = DateTime(_date.year, _date.month - month);
-      DateTime month_end = DateTime(_date.year, _date.month - month + 1, 0);
+      DateTime monthStart = DateTime(_date.year, _date.month - month);
+      DateTime monthEnd = DateTime(_date.year, _date.month - month + 1, 0);
       for (Expense expense in expenses) {
         if (!closed.contains(expense)) {
-          if (expense.date.isAfter(month_start) &&
-              expense.date.isBefore(month_end)) {
-            monthly_sums[expense.category][month] += expense.amount;
+          if (expense.date.isAfter(monthStart) &&
+              expense.date.isBefore(monthEnd)) {
+            monthlySums[expense.category][month] += expense.amount;
             closed.add(expense);
           }
         }
       }
     }
-    for (Category category in monthly_sums.keys) {
+    for (Category category in monthlySums.keys) {
       double sum = 0;
-      int zero_month = 0;
-      for (int month in monthly_sums[category].keys) {
-        if (monthly_sums[category][month] == 0) {
-          zero_month++;
+      int zeroMonth = 0;
+      for (int month in monthlySums[category].keys) {
+        if (monthlySums[category][month] == 0) {
+          zeroMonth++;
         }
-        sum += monthly_sums[category][month];
+        sum += monthlySums[category][month];
       }
-      double average = sum / (12 - zero_month);
+      double average = sum / (12 - zeroMonth);
       _data[category][2] -= average;
     }
   }

@@ -185,6 +185,7 @@ class NewCategoryScreen extends StatefulWidget {
 
 class NewCategoryScreenState extends State<NewCategoryScreen> {
   String _categoryName;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -198,25 +199,37 @@ class NewCategoryScreenState extends State<NewCategoryScreen> {
           TextButton(
               key: Key("saveCategoryButton"),
               onPressed: () {
-                Category category = Category(_categoryName);
-                widget.callback(category);
-                Navigator.of(context).pop();
+                if (_formKey.currentState.validate()) {
+                  Category category = Category(_categoryName);
+                  widget.callback(category);
+                  Navigator.of(context).pop();
+                }
               },
               child: Text("Save"))
         ],
       ),
       body: Padding(
         padding: EdgeInsets.all(8),
-        child: Column(
-          children: [
-            TextField(
-              key: Key("newCategoryNameField"),
-              decoration: InputDecoration(labelText: "Enter new category name"),
-              onChanged: (value) {
-                _categoryName = value;
-              },
-            )
-          ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                validator: (value) {
+                  if (value == "" && value.isEmpty) {
+                    return "Please enter category name";
+                  }
+                  return null;
+                },
+                key: Key("newCategoryNameField"),
+                decoration:
+                    InputDecoration(labelText: "Enter new category name"),
+                onChanged: (value) {
+                  _categoryName = value;
+                },
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -238,6 +251,8 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
   Category _selectedCategory;
   String _amount;
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     this._date = DateTime.now();
@@ -257,10 +272,12 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
           TextButton(
               key: Key("saveExpenseButton"),
               onPressed: () {
-                Expense expense =
-                    Expense(_date, _selectedCategory, double.parse(_amount));
-                widget.callback(expense);
-                Navigator.of(context).pop();
+                if (_formKey.currentState.validate()) {
+                  Expense expense =
+                      Expense(_date, _selectedCategory, double.parse(_amount));
+                  widget.callback(expense);
+                  Navigator.of(context).pop();
+                }
               },
               child: Text("Save"))
         ],
@@ -273,45 +290,53 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
               "New expense",
               style: Theme.of(context).textTheme.headline6,
             ),
-            Container(
-              height: 60,
-              child: DateTimeFormField(
-                initialValue: _date,
-                onDateSelected: (value) {
-                  setState(() {
-                    _date = value;
-                  });
-                },
-                mode: DateTimeFieldPickerMode.date,
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  DateTimeFormField(
+                    initialValue: _date,
+                    onDateSelected: (value) {
+                      setState(() {
+                        _date = value;
+                      });
+                    },
+                    mode: DateTimeFieldPickerMode.date,
+                  ),
+                  DropdownButtonFormField(
+                    key: Key("expenseCategoryDropDown"),
+                    value: _selectedCategory,
+                    onChanged: (Category newValue) {
+                      setState(() {
+                        _selectedCategory = newValue;
+                      });
+                    },
+                    items: widget.categories
+                        .map<DropdownMenuItem<Category>>((Category value) {
+                      return DropdownMenuItem<Category>(
+                          value: value, child: Text(value.toString()));
+                    }).toList(),
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (num.tryParse(value) == null) {
+                        return "Please enter a number";
+                      }
+                      return null;
+                    },
+                    key: Key("expenseAmountField"),
+                    decoration:
+                        InputDecoration(labelText: "Enter Expense amount"),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        _amount = value;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
-            Container(
-              height: 60,
-              child: DropdownButtonFormField(
-                key: Key("expenseCategoryDropDown"),
-                value: _selectedCategory,
-                onChanged: (Category newValue) {
-                  setState(() {
-                    _selectedCategory = newValue;
-                  });
-                },
-                items: widget.categories
-                    .map<DropdownMenuItem<Category>>((Category value) {
-                  return DropdownMenuItem<Category>(
-                      value: value, child: Text(value.toString()));
-                }).toList(),
-              ),
-            ),
-            TextField(
-              key: Key("expenseCategoryAmountField"),
-              decoration: InputDecoration(labelText: "Enter Expense amount"),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                setState(() {
-                  _amount = value;
-                });
-              },
-            )
           ],
         ),
       ),
@@ -438,11 +463,11 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
             child: ElevatedButton(
               child: Text("Create the report"),
               onPressed: () async {
-                DateTime now_date = DateTime.now();
+                DateTime nowDate = DateTime.now();
                 bool answer = true;
-                bool isDateAfter = _date.isAfter(now_date) ||
-                    (_date.month == now_date.month &&
-                        _date.year == now_date.year);
+                bool isDateAfter = _date.isAfter(nowDate) ||
+                    (_date.month == nowDate.month &&
+                        _date.year == nowDate.year);
                 if (isDateAfter) {
                   await showDialog(
                       context: context,
