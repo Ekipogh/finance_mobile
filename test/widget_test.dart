@@ -25,7 +25,7 @@ void main() {
     await tester.tap(find.byKey(Key("expenseFloatingButton")));
     await tester.pumpAndSettle();
     await tester.enterText(
-        find.byKey(Key("expenseCategoryAmountField")), "1234567");
+        find.byKey(Key("expenseAmountField")), "1234567");
     await tester.tap(find.byKey(Key("saveExpenseButton")));
     await tester.pumpAndSettle();
     expect(find.text("1234567.0 R", skipOffstage: false), findsOneWidget);
