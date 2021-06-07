@@ -1,3 +1,4 @@
+import 'package:finance_mobile/screens/importSceen.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
@@ -113,7 +114,18 @@ class HomeWidgetState extends State<HomeWidget> {
                       expenses: widget.expenses, categories: widget.categories);
                 }));
               },
-            )
+            ),
+            ListTile(
+              key: Key("ImportButton"),
+              title: Text("Import"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return ImportScreen();
+                }));
+              },
+            ),
           ],
         ),
       ),
