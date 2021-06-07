@@ -1,8 +1,8 @@
-import 'category.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
 
 class Expense {
   DateTime date;
-  Category category;
+  ExpenseCategory category;
   double amount;
 
   Expense(this.date, this.category, this.amount);

@@ -1,14 +1,14 @@
+import 'package:finance_mobile/models/expense.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
 import 'package:flutter/material.dart';
 
-import '../category.dart';
-import '../expense.dart';
 import 'categoryScreen.dart';
 import 'newExpenseScreen.dart';
 import 'statisticsScreen.dart';
 
 class HomeWidget extends StatefulWidget {
   final List<Expense> expenses;
-  final List<Category> categories;
+  final List<ExpenseCategory> categories;
   final Function callback;
 
   HomeWidget({this.expenses, this.callback, this.categories});
@@ -53,9 +53,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 Navigator.pop(context);
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
-                  return CategoryScreen(
-                    categories: widget.categories,
-                  );
+                  return CategoryScreen();
                 }));
               },
             ),

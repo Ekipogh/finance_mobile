@@ -1,12 +1,11 @@
 import 'package:date_field/date_field.dart';
+import 'package:finance_mobile/models/expense.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
 import 'package:flutter/material.dart';
-
-import '../category.dart';
-import '../expense.dart';
 
 class NewExpenseScreen extends StatefulWidget {
   final Function callback;
-  final List<Category> categories;
+  final List<ExpenseCategory> categories;
 
   NewExpenseScreen({this.callback, this.categories});
 
@@ -16,7 +15,7 @@ class NewExpenseScreen extends StatefulWidget {
 
 class _NewExpenseScreenState extends State<NewExpenseScreen> {
   DateTime _date;
-  Category _selectedCategory;
+  ExpenseCategory _selectedCategory;
   String _amount;
 
   final _formKey = GlobalKey<FormState>();
@@ -74,14 +73,15 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
                   DropdownButtonFormField(
                     key: Key("expenseCategoryDropDown"),
                     value: _selectedCategory,
-                    onChanged: (Category newValue) {
+                    onChanged: (ExpenseCategory newValue) {
                       setState(() {
                         _selectedCategory = newValue;
                       });
                     },
                     items: widget.categories
-                        .map<DropdownMenuItem<Category>>((Category value) {
-                      return DropdownMenuItem<Category>(
+                        .map<DropdownMenuItem<ExpenseCategory>>(
+                            (ExpenseCategory value) {
+                      return DropdownMenuItem<ExpenseCategory>(
                           value: value, child: Text(value.toString()));
                     }).toList(),
                   ),

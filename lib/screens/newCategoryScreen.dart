@@ -1,6 +1,5 @@
+import 'package:finance_mobile/models/expenseCategory.dart';
 import 'package:flutter/material.dart';
-
-import '../category.dart';
 
 class NewCategoryScreen extends StatefulWidget {
   final Function callback;
@@ -28,8 +27,10 @@ class _NewCategoryScreenState extends State<NewCategoryScreen> {
               key: Key("saveCategoryButton"),
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  Category category = Category(_categoryName);
-                  widget.callback(category);
+                  ExpenseCategory category =
+                      ExpenseCategory(name: _categoryName);
+                  category.save();
+                  widget.callback();
                   Navigator.of(context).pop();
                 }
               },
@@ -51,7 +52,7 @@ class _NewCategoryScreenState extends State<NewCategoryScreen> {
                 },
                 key: Key("newCategoryNameField"),
                 decoration:
-                InputDecoration(labelText: "Enter new category name"),
+                    InputDecoration(labelText: "Enter new category name"),
                 onChanged: (value) {
                   _categoryName = value;
                 },
