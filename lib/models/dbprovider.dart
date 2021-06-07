@@ -7,19 +7,19 @@ class DBProvider {
   static final DBProvider db = DBProvider._();
   Database _database;
 
-  get database {
-    if (_database != null) {
-      return _database;
+  get database async {
+    if (this._database != null) {
+      return this._database;
     }
-    _database = initDB();
-    return _database;
+    this._database = await initDB();
+    return this._database;
   }
 
   initDB() async {
     return openDatabase(join(await getDatabasesPath(), 'finance_database.db'),
         onCreate: (db, version) {
-      return db
-          .execute("CREATE TABLE categories(id INTEGER PRIMARY KEY, name TEXT)");
+      return db.execute(
+          "CREATE TABLE categories(id INTEGER PRIMARY KEY, name TEXT)");
     }, version: 1);
   }
 }

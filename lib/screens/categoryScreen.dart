@@ -33,9 +33,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               ],
             );
           }
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+          return Center(child: Text("Add new category"));
         },
       ),
       floatingActionButton: FloatingActionButton(
