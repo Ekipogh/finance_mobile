@@ -1,8 +1,8 @@
 import 'package:date_field/date_field.dart';
+import 'package:finance_mobile/screens/financeApp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:finance_mobile/main.dart';
 
 void main() {
   testWidgets('Test plus button tapping and New Expense Page appearing',
