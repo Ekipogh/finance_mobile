@@ -1,14 +1,14 @@
+import 'package:finance_mobile/models/expense.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
+import 'package:finance_mobile/models/monthlyReport.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../category.dart';
-import '../expense.dart';
-import '../monthlyReport.dart';
 import 'monthlyReportDetailsScreen.dart';
 
 class MonthlyReportScreen extends StatefulWidget {
   final List<Expense> expenses;
-  final List<Category> categories;
+  final List<ExpenseCategory> categories;
 
   MonthlyReportScreen({this.expenses, this.categories});
 
@@ -32,6 +32,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
     reports = [];
     setFormattedDate();
     super.initState();
+    MonthlyReport.get(_date).then((value) => _currentReport = value);
   }
 
   void setFormattedDate() {
@@ -126,7 +127,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
                 setState(() {
                   if (answer) {
                     MonthlyReport report = MonthlyReport(
-                        _date, widget.expenses, widget.categories);
+                        _date);
                     reports.add(report);
                     setCurrentReport();
                     setFormattedDate();

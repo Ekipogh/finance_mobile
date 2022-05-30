@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
 
-import '../category.dart';
 import 'newCategoryScreen.dart';
 
 class CategoryScreen extends StatefulWidget {
-  final List<Category> categories;
-
-  CategoryScreen({this.categories});
+  CategoryScreen();
 
   @override
   State<StatefulWidget> createState() => _CategoryScreenState();
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
+  Future<List<ExpenseCategory>> _categories;
+
+  @override
+  void initState() {
+    updateCategories();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: ListView(
-        children: [
-          for (var category in widget.categories) _categoryTile(category)
-        ],
+      body: FutureBuilder(
+        future: _categories,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView(
+              children: [
+                for (var category in snapshot.data) _categoryTile(category)
+              ],
+            );
+          }
+          return Center(child: Text("Add new category"));
+        },
       ),
       floatingActionButton: FloatingActionButton(
         key: Key("categoryFloatingButton"),
@@ -34,15 +48,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-  Widget _categoryTile(Category category) {
+  Widget _categoryTile(ExpenseCategory category) {
     return ListTile(
       title: Text(category.name),
     );
   }
 
-  void updateCategories(Category category) {
+  void updateCategories() {
     setState(() {
-      widget.categories.add(category);
+      this._categories = ExpenseCategory.list();
     });
   }
 }

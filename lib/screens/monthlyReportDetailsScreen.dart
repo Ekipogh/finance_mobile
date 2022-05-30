@@ -1,6 +1,6 @@
+import 'package:finance_mobile/models/monthlyReport.dart';
 import 'package:flutter/material.dart';
 
-import '../monthlyReport.dart';
 
 class MonthlyReportDetailsScreen extends StatelessWidget {
   final MonthlyReport report;

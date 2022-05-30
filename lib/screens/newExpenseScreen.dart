@@ -1,14 +1,12 @@
 import 'package:date_field/date_field.dart';
+import 'package:finance_mobile/models/expense.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
 import 'package:flutter/material.dart';
-
-import '../category.dart';
-import '../expense.dart';
 
 class NewExpenseScreen extends StatefulWidget {
   final Function callback;
-  final List<Category> categories;
 
-  NewExpenseScreen({this.callback, this.categories});
+  NewExpenseScreen({this.callback});
 
   @override
   State<StatefulWidget> createState() => _NewExpenseScreenState();
@@ -16,15 +14,19 @@ class NewExpenseScreen extends StatefulWidget {
 
 class _NewExpenseScreenState extends State<NewExpenseScreen> {
   DateTime _date;
-  Category _selectedCategory;
+  ExpenseCategory _selectedCategory;
   String _amount;
+  Future<List<ExpenseCategory>> categories;
 
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     this._date = DateTime.now();
-    this._selectedCategory = widget.categories.first;
+    categories = ExpenseCategory.list();
+    categories.then((value) {
+      this._selectedCategory = value.first;
+    });
     super.initState();
   }
 
@@ -41,9 +43,12 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
               key: Key("saveExpenseButton"),
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  Expense expense =
-                      Expense(_date, _selectedCategory, double.parse(_amount));
-                  widget.callback(expense);
+                  Expense expense = Expense(
+                      date: _date,
+                      category: _selectedCategory,
+                      amount: double.parse(_amount));
+                  expense.save();
+                  widget.callback();
                   Navigator.of(context).pop();
                 }
               },
@@ -71,19 +76,29 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
                     },
                     mode: DateTimeFieldPickerMode.date,
                   ),
-                  DropdownButtonFormField(
-                    key: Key("expenseCategoryDropDown"),
-                    value: _selectedCategory,
-                    onChanged: (Category newValue) {
-                      setState(() {
-                        _selectedCategory = newValue;
-                      });
+                  FutureBuilder(
+                    key: Key("expenseCategoryFutureBuilder"),
+                    future: categories,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return DropdownButtonFormField(
+                          key: Key("expenseCategoryDropDown"),
+                          value: _selectedCategory,
+                          onChanged: (ExpenseCategory newValue) {
+                            setState(() {
+                              _selectedCategory = newValue;
+                            });
+                          },
+                          items: snapshot.data
+                              .map<DropdownMenuItem<ExpenseCategory>>(
+                                  (ExpenseCategory value) {
+                            return DropdownMenuItem<ExpenseCategory>(
+                                value: value, child: Text(value.toString()));
+                          }).toList(),
+                        );
+                      }
+                      return Text("Please create some categories");
                     },
-                    items: widget.categories
-                        .map<DropdownMenuItem<Category>>((Category value) {
-                      return DropdownMenuItem<Category>(
-                          value: value, child: Text(value.toString()));
-                    }).toList(),
                   ),
                   TextFormField(
                     validator: (value) {

@@ -1,7 +1,8 @@
+import 'package:finance_mobile/models/expense.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
 
-import '../category.dart';
-import '../expense.dart';
 import 'homeWidget.dart';
 
 class FinanceApp extends StatefulWidget {
@@ -10,36 +11,13 @@ class FinanceApp extends StatefulWidget {
 }
 
 class _FinanceAppState extends State<FinanceApp> {
-  List<Category> categories;
-  List<Expense> expenses;
-
-  _FinanceAppState() {
-    categories = [
-      Category("Groceries"),
-      Category("Taxi"),
-      Category("Drinks"),
-    ];
-    expenses = [
-      Expense(DateTime(2021, 05, 19), categories[0], 300),
-      Expense(DateTime(2021, 05, 18), categories[1], 500),
-      Expense(DateTime(2021, 05, 17), categories[2], 600)
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Colors.blue[300],
       ),
-      home: HomeWidget(
-          expenses: expenses, categories: categories, callback: updateExpenses),
+      home: HomeWidget(),
     );
-  }
-
-  void updateExpenses(Expense expense) {
-    setState(() {
-      expenses.add(expense);
-    });
   }
 }

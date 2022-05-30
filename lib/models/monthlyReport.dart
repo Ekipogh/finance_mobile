@@ -1,11 +1,21 @@
-import 'package:finance_mobile/expense.dart';
-import 'package:finance_mobile/category.dart';
+import 'package:finance_mobile/models/dbprovider.dart';
+import 'package:finance_mobile/models/expense.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:sqflite/sqflite.dart';
 
 class MonthlyReport {
   DateTime _date;
-  Map<Category, List<num>> _data;
+  Map<ExpenseCategory, List<num>> _data;
 
-  MonthlyReport(this._date, List<Expense> expenses, List<Category> categories) {
+  MonthlyReport(this._date) {
+    List<ExpenseCategory> categories;
+    List<Expense> expenses;
+    ExpenseCategory.list().then((value) {
+      categories = value;
+    });
+    Expense.list().then((value) => expenses = value);
+
     _data = {};
     for (var category in categories) {
       _data[category] = [0, 0, 0];
@@ -30,8 +40,8 @@ class MonthlyReport {
     }
     //Year average
     List<Expense> closed = [];
-    Map<Category, Map<int, double>> monthlySums = {};
-    for (Category category in categories) {
+    Map<ExpenseCategory, Map<int, double>> monthlySums = {};
+    for (ExpenseCategory category in categories) {
       monthlySums[category] = {
         1: 0,
         2: 0,
@@ -60,7 +70,7 @@ class MonthlyReport {
         }
       }
     }
-    for (Category category in monthlySums.keys) {
+    for (ExpenseCategory category in monthlySums.keys) {
       double sum = 0;
       int zeroMonth = 0;
       for (int month in monthlySums[category].keys) {
@@ -74,7 +84,12 @@ class MonthlyReport {
     }
   }
 
-  Map<Category, List<num>> get data => _data;
+  Map<ExpenseCategory, List<num>> get data => _data;
 
   DateTime get date => _date;
+
+  static Future<MonthlyReport> get(DateTime date) async {
+    Database db = await DBProvider.db.database;
+    var reports = db.query("monthlyReports");
+  }
 }

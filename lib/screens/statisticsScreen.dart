@@ -1,12 +1,11 @@
+import 'package:finance_mobile/models/expense.dart';
+import 'package:finance_mobile/models/expenseCategory.dart';
+import 'package:finance_mobile/screens/monthlyReportScreen.dart';
 import 'package:flutter/material.dart';
-
-import '../category.dart';
-import '../expense.dart';
-import 'monthlyReportScreen.dart';
 
 class StatisticsScreen extends StatelessWidget {
   final List<Expense> expenses;
-  final List<Category> categories;
+  final List<ExpenseCategory> categories;
 
   StatisticsScreen({this.expenses, this.categories});
 
@@ -37,7 +36,6 @@ class StatisticsScreen extends StatelessWidget {
               MonthlyReportScreen(expenses: expenses, categories: categories),
             ],
           ),
-        )
-    );
+        ));
   }
 }
