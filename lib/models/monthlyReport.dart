@@ -1,12 +1,21 @@
+import 'package:finance_mobile/models/dbprovider.dart';
 import 'package:finance_mobile/models/expense.dart';
 import 'package:finance_mobile/models/expenseCategory.dart';
-
+import 'package:flutter/cupertino.dart';
+import 'package:sqflite/sqflite.dart';
 
 class MonthlyReport {
   DateTime _date;
   Map<ExpenseCategory, List<num>> _data;
 
-  MonthlyReport(this._date, List<Expense> expenses, List<ExpenseCategory> categories) {
+  MonthlyReport(this._date) {
+    List<ExpenseCategory> categories;
+    List<Expense> expenses;
+    ExpenseCategory.list().then((value) {
+      categories = value;
+    });
+    Expense.list().then((value) => expenses = value);
+
     _data = {};
     for (var category in categories) {
       _data[category] = [0, 0, 0];
@@ -78,4 +87,9 @@ class MonthlyReport {
   Map<ExpenseCategory, List<num>> get data => _data;
 
   DateTime get date => _date;
+
+  static Future<MonthlyReport> get(DateTime date) async {
+    Database db = await DBProvider.db.database;
+    var reports = db.query("monthlyReports");
+  }
 }

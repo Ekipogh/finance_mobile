@@ -32,6 +32,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
     reports = [];
     setFormattedDate();
     super.initState();
+    MonthlyReport.get(_date).then((value) => _currentReport = value);
   }
 
   void setFormattedDate() {
@@ -126,7 +127,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen>
                 setState(() {
                   if (answer) {
                     MonthlyReport report = MonthlyReport(
-                        _date, widget.expenses, widget.categories);
+                        _date);
                     reports.add(report);
                     setCurrentReport();
                     setFormattedDate();

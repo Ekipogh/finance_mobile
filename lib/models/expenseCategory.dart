@@ -16,15 +16,20 @@ class ExpenseCategory {
         "name": name,
       };
 
-  save() async {
+  static ExpenseCategory fromMap(Map<String, dynamic> map) {
+    return ExpenseCategory(id: map["id"], name: map["name"]);
+  }
+
+  Future<ExpenseCategory> save() async {
     final db = await DBProvider.db.database;
     await db.insert("categories", this.toMap());
     return this;
   }
 
-  static get(int id) async {
+  static Future<ExpenseCategory> get(int id) async {
     final db = await DBProvider.db.database;
-    return await db.query("categories", where: "id = ?", whereArgs: [id]);
+    var res = await db.query("categories", where: "id = ?", whereArgs: [id]);
+    return res.isNotEmpty ? ExpenseCategory.fromMap(res.first) : null;
   }
 
   static Future<List<ExpenseCategory>> list() async {

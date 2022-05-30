@@ -7,7 +7,7 @@ class DBProvider {
   static final DBProvider db = DBProvider._();
   Database _database;
 
-  get database async {
+  Future<Database> get database async {
     if (this._database != null) {
       return this._database;
     }
@@ -17,9 +17,11 @@ class DBProvider {
 
   initDB() async {
     return openDatabase(join(await getDatabasesPath(), 'finance_database.db'),
-        onCreate: (db, version) {
-      return db.execute(
-          "CREATE TABLE categories(id INTEGER PRIMARY KEY, name TEXT)");
+        onCreate: (db, version) async {
+      await db.execute(
+          "CREATE TABLE categories(id INTEGER, name TEXT, PRIMARY KEY(id))");
+      await db.execute(
+          "CREATE TABLE expenses(id INTEGER, date INTEGER, categoryId INTEGER, amount DOUBLE, PRIMARY KEY(id), FOREIGN KEY(categoryId) REFERENCES categories(id))");
     }, version: 1);
   }
 }

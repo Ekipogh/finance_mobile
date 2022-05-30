@@ -1,5 +1,4 @@
 import 'package:finance_mobile/models/expense.dart';
-import 'package:finance_mobile/models/expenseCategory.dart';
 import 'package:flutter/material.dart';
 
 import 'categoryScreen.dart';
@@ -7,12 +6,6 @@ import 'newExpenseScreen.dart';
 import 'statisticsScreen.dart';
 
 class HomeWidget extends StatefulWidget {
-  final List<Expense> expenses;
-  final List<ExpenseCategory> categories;
-  final Function callback;
-
-  HomeWidget({this.expenses, this.callback, this.categories});
-
   @override
   State<StatefulWidget> createState() => _HomeWidgetState();
 }
@@ -22,16 +15,28 @@ class _HomeWidgetState extends State<HomeWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: ListView(
-        children: [for (var expense in widget.expenses) _expenseTile(expense)],
-      ),
+      body: FutureBuilder(
+          future: Expense.list(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return ListView(children: [
+                for (var expense in snapshot.data) _expenseTile(expense)
+              ]);
+            } else {
+              return Center(
+                child:
+                    Text("Start adding new expenses by pressing Plus button"),
+              );
+            }
+          }),
       floatingActionButton: FloatingActionButton(
         key: Key("expenseFloatingButton"),
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (context) {
             return NewExpenseScreen(
-                callback: widget.callback, categories: widget.categories);
+              callback: callback,
+            );
           }));
         },
       ),
@@ -64,8 +69,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 Navigator.pop(context);
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
-                  return StatisticsScreen(
-                      expenses: widget.expenses, categories: widget.categories);
+                  return StatisticsScreen();
                 }));
               },
             )
@@ -73,6 +77,10 @@ class _HomeWidgetState extends State<HomeWidget> {
         ),
       ),
     );
+  }
+
+  Function callback() {
+    setState(() {});
   }
 
   Widget _expenseTile(Expense expense) {
